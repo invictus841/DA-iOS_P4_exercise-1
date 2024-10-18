@@ -3,6 +3,7 @@ import SwiftUI
 final class ToDoListViewModel: ObservableObject {
     // MARK: - Private properties
 
+    /// Le dépôt pour charger et sauvegarder les éléments de la liste
     private let repository: ToDoListRepositoryType
 
     // MARK: - Init
@@ -22,8 +23,10 @@ final class ToDoListViewModel: ObservableObject {
         }
     }
     
-//    @Published var filteredToDoItems: [ToDoItem] = []
+    /// L'index du filtre actuel
     var selectedFilterIndex: Int = 0
+    
+    /// Tous les éléments de la liste, non filtrés
     var allToDoItems: [ToDoItem] = []
 
     // MARK: - Inputs
