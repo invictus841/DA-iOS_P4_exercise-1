@@ -9,34 +9,32 @@ struct ToDoListView: View {
     // New state for filter index
     @State private var filterIndex = 0
     
-    // MARK: - la valeur par défaut dans le picker
-    @State private var selectedStatus: TaskStatus = .all
-        
-    // MARK: - ici les deux états d'un ToDoItem, et all
-        enum TaskStatus: String, CaseIterable {
-            case all = "All"
-            case done = "Done"
-            case notDone = "Not Done"
-        }
-    
     var body: some View {
         NavigationView {
             VStack {
                 // Filter selector
                 // TODO: - Add a filter selector which will call the viewModel for updating the displayed data
-                Picker("Task Status", selection: $selectedStatus) {
-                    ForEach(TaskStatus.allCases, id: \.self) { status in
-                        Text(status.rawValue)
-                            .tag(status)
-                    }
+                Picker("Task Status", selection: $filterIndex) {
+                    Text("all")
+                        .tag(0)
+                    
+                    Text("done")
+                        .tag(1)
+                    
+                    Text("not done")
+                        .tag(2)
                 }
+                .onChange(of: filterIndex, perform: { selectedIndex in
+                    viewModel.applyFilter(at: selectedIndex)
+                })
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
                 
                 
+                
                 // List of tasks
                 List {
-                    ForEach(viewModel.filteredToDoItems) { item in
+                    ForEach(viewModel.toDoItems) { item in
                         HStack {
                             Button(action: {
                                 viewModel.toggleTodoItemCompletion(item)
@@ -58,9 +56,6 @@ struct ToDoListView: View {
                             viewModel.removeTodoItem(item)
                         }
                     }
-                }
-                .onChange(of: selectedStatus) { newValue in
-                    viewModel.applyFilter(at: selectedStatus.hashValue)
                 }
                 
                 // Sticky bottom view for adding todos
@@ -114,22 +109,8 @@ struct ToDoListView: View {
             }
             .navigationBarTitle("To-Do List")
             .navigationBarItems(trailing: EditButton())
-            .onAppear {
-                viewModel.applyFilter(at: selectedStatus.hashValue)
-            }
         }
     }
-    
-//    private var filteredTodos: [ToDoItem] {
-//            switch selectedStatus {
-//            case .all:
-//                return viewModel.toDoItems
-//            case .done:
-//                return viewModel.toDoItems.filter { $0.isDone }
-//            case .notDone:
-//                return viewModel.toDoItems.filter { !$0.isDone }
-//            }
-//        }
 }
 
 struct ToDoListView_Previews: PreviewProvider {

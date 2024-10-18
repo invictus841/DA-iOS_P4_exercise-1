@@ -9,7 +9,8 @@ final class ToDoListViewModel: ObservableObject {
 
     init(repository: ToDoListRepositoryType) {
         self.repository = repository
-        self.toDoItems = repository.loadToDoItems()
+        self.allToDoItems = repository.loadToDoItems()
+        self.toDoItems = allToDoItems
     }
 
     // MARK: - Outputs
@@ -21,43 +22,49 @@ final class ToDoListViewModel: ObservableObject {
         }
     }
     
-    @Published var filteredToDoItems: [ToDoItem] = []
-    @Published var selectedFilterIndex: Int = 0
+//    @Published var filteredToDoItems: [ToDoItem] = []
+    var selectedFilterIndex: Int = 0
+    var allToDoItems: [ToDoItem] = []
 
     // MARK: - Inputs
 
     // Add a new to-do item with priority and category
     func add(item: ToDoItem) {
-        toDoItems.append(item)
+        allToDoItems.append(item)
+        
+        applyFilter(at: selectedFilterIndex)
     }
 
     /// Toggles the completion status of a to-do item.
     func toggleTodoItemCompletion(_ item: ToDoItem) {
-        if let index = toDoItems.firstIndex(where: { $0.id == item.id }) {
-            toDoItems[index].isDone.toggle()
+        if let index = allToDoItems.firstIndex(where: { $0.id == item.id }) {
+            allToDoItems[index].isDone.toggle()
+            
+            applyFilter(at: selectedFilterIndex)
         }
     }
 
     /// Removes a to-do item from the list.
     func removeTodoItem(_ item: ToDoItem) {
-        toDoItems.removeAll { $0.id == item.id }
+        allToDoItems.removeAll { $0.id == item.id }
+        
+        applyFilter(at: selectedFilterIndex)
     }
 
     /// Apply the filter to update the list.
     func applyFilter(at index: Int) {
         // TODO: - Implement the logic for filtering
-        
-        selectedFilterIndex = index
-        
         switch index {
         case 0:
-            filteredToDoItems = toDoItems
+            toDoItems = allToDoItems
         case 1:
-            filteredToDoItems = toDoItems.filter { $0.isDone }
+            toDoItems = allToDoItems.filter { $0.isDone }
         case 2:
-            filteredToDoItems = toDoItems.filter { !$0.isDone }
+            toDoItems = allToDoItems.filter { !$0.isDone }
         default:
-            filteredToDoItems = toDoItems
+            break
         }
+        
+        selectedFilterIndex = index
     }
 }
